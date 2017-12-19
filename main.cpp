@@ -2,28 +2,45 @@
 #include <iostream>
 #include <vector>
 using namespace std;
+
+typedef struct voxel{
+    char *data;
+    uin32_t width,height,depth;
+    char get(uint32_t x,uint32_t y,uint32_t z) {
+        return data[y * width * depth + x * depth + z];
+    }
+    char set(uint32_t x,uint32_t y,uint32_t z,char &v){
+        data[y * width * depth + x * depth + z] = v;
+    }
+} voxel;
+
+typdef struct field{
+    char *data;
+    uint32_t width,height;
+}
+
 char *bitmap;
 char *voxel;
+vector<voxel> voxels;
 vector<char*> output;
 
-int bm_width,bm_height;
-int vx_width,vx_height,vx_depth;
 
-char get_bm(uint32_t x,uint32_t y){
-    return bitmap[y*bm_width + x];
-}
-char get_vx(uint32_t x,uint32_t y,uint32_t z){
-    return bitmap[y*vx_depth*vx_width + x*vx_depth + z];
+char* genvoxel(uint32_t width,uint32_t height,uint32_t depth) {
+    voxel b;
+    b.data = (char*)malloc(width * height * depth * sizeof(char));
+    voxels.push_back(voxel);
+    return b;
 }
 
 
 int main() {
-    cin >> bm_width >> bm_height;
-    cin >> vx_width >> vx_height >> vx_depth;
-    int bitmapSize = (bm_width * bm_height);
-    int voxelSize = (vx_width * vx_height * vx_depth);
+    voxel vx;
     bitmap = (char*)malloc(bitmapSize * sizeof(char));
-    voxel = (char*)malloc(voxelSize * sizeof(char));
-    // output.push(block);
+    vx.data = (char*)malloc(vxSize * sizeof(char));
+    free(bitmap);
+    free(vx.data);
+    for(auto &i:voxels) {
+        free(i.data);
+    }
     return 0;
 }
