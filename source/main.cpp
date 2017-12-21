@@ -8,7 +8,7 @@
 #include "../include/CompFab.h"
 #include "../include/Mesh.h"
 #include <fstream>
-
+#include "assimilator.hpp"
 
 //Ray-Triangle Intersection
 //Returns 1 if triangle and ray intersect, 0 otherwise
@@ -156,22 +156,22 @@ bool loadMesh(char *filename, unsigned int dim)
 
 
 
-void saveVoxelsToObj(const char * outfile)
+void saveVoxelsToObj(const char * outfile,CompFab::VoxelGrid* voxel)
 {
  
     Mesh box;
     Mesh mout;
-    int nx = g_voxelGrid->m_dimX;
-    int ny = g_voxelGrid->m_dimY;
-    int nz = g_voxelGrid->m_dimZ;
-    double spacing = g_voxelGrid->m_spacing;
+    int nx = voxel->m_dimX;
+    int ny = voxel->m_dimY;
+    int nz = voxel->m_dimZ;
+    double spacing = voxel->m_spacing;
     
     CompFab::Vec3 hspacing(0.5*spacing, 0.5*spacing, 0.5*spacing);
     
     for (int ii = 0; ii < nx; ii++) {
         for (int jj = 0; jj < ny; jj++) {
             for (int kk = 0; kk < nz; kk++) {
-                if(!g_voxelGrid->isInside(ii,jj,kk)){
+                if(!voxel->isInside(ii,jj,kk)){
                     continue;
                 }
                 projection1[kk][ii] = true;
@@ -322,7 +322,7 @@ int main(int argc, char **argv)
     
     
     //Write out voxel data as obj
-    saveVoxelsToObj("output.obj");
+    saveVoxelsToObj("output.obj",g_voxelGrid);
     for(int i = 0;i <64; i++){
         for(int k = 0;k< 64;k++){
             if(projection1[i][k]){
@@ -360,5 +360,7 @@ int main(int argc, char **argv)
     }
     //bitmap is translation from picture bmp to 2d array
 
+    assimilator::run(g_voxelGrid,bitmap);
     delete g_voxelGrid;
+
 }

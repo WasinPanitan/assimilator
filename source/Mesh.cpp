@@ -291,6 +291,7 @@ void Mesh::save_obj(const char * filename)
   }
   save(out);
   out.close();
+  std::cout << filename << " saved\n";
 }
 
 void Mesh::update()
