@@ -14,19 +14,37 @@ namespace assimilator{
     int mark[8] = {
         0,0,0,0,0,0,0,0
     };
+    int bestside[8] = {
+        0,0,0,0,0,0,0,0
+    };
+    int bestorder[8] = {
+        0,0,0,0,0,0,0,0
+    };
+    int mincost = -1u/2;
     bool **projection[8][4];
-    int cost[8][4][8][4];
+    int cost[8][4][8];
     int calculateCost() {
+        int sum = 0;
         for(int i=0;i<8;i++) {
-            for(int i=0;i<4;i++) {
-
+            sum += cost[i][side[i]][order[i]];
+        }
+        if(sum < mincost) {
+            cout << sum << " " << mincost << "\n";
+            for(int i=0;i<8;i++) {
+                bestorder[i]=order[i];
+                bestside[i]=side[i];
             }
+            mincost = sum;
         }
     }
     int xorBm(int sec,int rot,int bmsec){
-        cout << sec << " " << rot << " " << bmsec << "\n";
-
-        return 0;
+        int sum = 0;
+        for(int i=0;i<8;i++) {
+            for(int j=0;j<64;j++){
+                sum += projection[sec][rot][i][j] != bm[bmsec*8+i][j];
+            }
+        }
+        return sum;
     }
     int project2d(){
         for(int i=0;i<8;i++) {
@@ -35,9 +53,6 @@ namespace assimilator{
                 for(int k = 0;k < 8; ++k){
                     projection[i][j][k] = new bool[64];
                 }
-                // for(int k = 0;k < 8; ++k){
-                //     int err = xorBm(i,j,k);
-                // }
             }
             for(int j=0;j<4;j++) {
                 for(int x = 0;x < 8; ++x){
@@ -59,19 +74,16 @@ namespace assimilator{
                     }
                 }
             }
-            for(int j=0;j<4;j++) {
-                for(int k=0;k<8;k++) {
-                    for(int l=0;l<64;l++) {
-                        cout << projection[i][j][k][l] << " ";
-                    }
-                    cout << "\n";
+            for(int rot=0;rot < 4;rot++) {
+                for(int bmsec=0;bmsec<8;bmsec++){
+                    cost[i][rot][bmsec] = xorBm(i,rot,bmsec);
                 }
-                cout << "\n";
             }
         }
     }
     void orderPerm(int idx) {
         if(idx==8){
+            calculateCost();
             return;
         };
         for(int i=0;i<8;i++){
@@ -83,14 +95,23 @@ namespace assimilator{
             }
         }
     }
-    void sidePerm(int idx,int side) {
-        if(idx==8)return;
-        orderPerm(0);
-        if(side==3)return sidePerm(idx+1,0);
-        return sidePerm(idx,side+1);
+    void sidePerm(int idx) {
+        if(idx==8){
+            orderPerm(0);
+            return;
+        }
+        for(int i=0;i<4;i++) {
+            side[idx]=i;
+            sidePerm(idx+1);
+        }
+        // side[idx] = s;
+        // orderPerm(0);
+        // if(s==3)return sidePerm(idx+1,0);
+        // return sidePerm(idx,s+1);
     }
     void run(CompFab::VoxelGrid* _vx,bool *_bm[64]){
         vx = _vx;
+        bm = _bm;
         CompFab::VoxelGrid* sec[8];
         for(int i=0;i<8;i++) {
             sec[i] = new CompFab::VoxelGrid(
@@ -102,10 +123,26 @@ namespace assimilator{
             );
         }
         project2d();
-        sidePerm(0,0);
-        
+        sidePerm(0);
+        vector<int> ans;
         for(int i=0;i<8;i++) {
+            ans.push_back(bestorder[i]);
+            ans.push_back(bestside[i]);
+            cout << bestorder[i] << "," << bestside[i] << "\n";
             delete sec[i];
+        }
+        for(int i=0;i<8;i++) {
+            for(int j=0;j<8;j++) {
+                if(bestorder[j] == i) {
+                    for(int k=0;k<8;k++) {
+                        for(int l=0;l<64;l++) {
+                            cout << projection[j][bestside[j]][k][l] << " ";
+                        }
+                        cout << "\n";
+                    }
+                }
+
+            }
         }
     }
 }

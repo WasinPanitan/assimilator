@@ -1,0 +1,1 @@
+g++ -std=c++11 -o assimilator source/main.cpp source/Mesh.cpp source/CompFab.cpp && ./assimilator data/bunny/bunny.obj data/bunny64inverse.bmp
